@@ -25,6 +25,7 @@ setuptools.setup(
     install_requires=[
         'open3d',
         'seaborn',
+        'numpy',
     ],
     entry_points={
         'console_scripts': [
