@@ -16,9 +16,10 @@
 
 from base_filter import BaseFilter
 
-class RangeFilter(BaseFilter):
-  def __init__(self) -> None:
-    pass
 
-  def filter(self, data):
-    pass
+class RangeFilter(BaseFilter):
+    def __init__(self) -> None:
+        pass
+
+    def filter(self, data):
+        pass

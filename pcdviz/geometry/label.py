@@ -14,11 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import pcdviz
 
-viz = pcdviz.Scene()
-
-pc = PointCloud()
-viz.add(pc)  
-
-viz.show()
+class Label(VizObj):
+    def __init__(self):
+        pass

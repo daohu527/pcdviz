@@ -1,0 +1,10 @@
+inputs:
+  - name: pointcloud
+    type: bin
+    path: data/custom/velodyne/000005.bin
+  - name: oriented_bounding_box
+    path: data/custom/label/000005.txt
+    color: red
+  - name: oriented_bounding_box
+    path: data/custom/label/000005p.txt
+    color: blue

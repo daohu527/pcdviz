@@ -43,7 +43,21 @@ The proj module is mainly used for projecting perspective, I guess this is easil
 - img.py - point cloud projected by transformation matrix
 - range_img.py - point cloud projected to front view
 
+## config
+input must be geometry
+
 ## example
-There're two examples
-- display_dataset.py. display dataset like KITTI, Nuscenes, Waymo, or Custom dataset.
-- display_frame.py. display pointcloud, bounding-box, label etc.
+1. frame_visualize_callback.yaml
+first call calib callback and then oriented_bounding_box callback
+
+calib callback interface
+```
+input: calib.path
+output: {} 
+```
+
+oriented_bounding_box callback interface
+```
+input: path, calib.callback.output
+output: bboxes
+```

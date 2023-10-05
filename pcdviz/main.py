@@ -17,30 +17,73 @@
 import os
 import argparse
 import sys
-import datetime
+import logging
+from pathlib import Path
 
-import open3d as o3d
 
-from pcdviz.visualizer import Visualizer
+from pcdviz.config.config import Config
+from pcdviz.dataset.custom_dataset import CustomDataset
 from pcdviz.dataset.kitti import KITTI
+from pcdviz.visualizer import Visualizer
 
-def _get_file_type(file_path : str) -> str:
-  return os.path.splitext(file_path)[1]
 
-def _key_callback(vis):
-    vis.capture_screen_image("{}.png".format(datetime.datetime.now()))
+def _get_file_type(file_path: str) -> str:
+    return os.path.splitext(file_path)[1]
 
-def display_frame_with_calib(lidar_file, label_file, calib_file):
-    vis = Visualizer(_key_callback)
 
-    file_type = _get_file_type(lidar_file)
-    if file_type == ".bin":
-        pointcloud = KITTI.create_pointcloud(lidar_file)
-    elif file_type == ".pcd":
-        pointcloud = o3d.io.read_point_cloud(lidar_file)
-    
-    bboxes = KITTI.create_oriented_bounding_box(label_file, calib_file)
-    vis.visualize(pointcloud, bboxes)
+def display_pointcloud(file_path):
+    if not Path(file_path).exists():
+        logging.error("File not exist! {}".format(file_path))
+        return None
+
+    vis = Visualizer()
+    file_type = _get_file_type(file_path)[1:]
+    pointcloud = CustomDataset.create_pointcloud(file_path, file_type)
+    vis.visualize(pointcloud)
+
+
+def display_frame(config):
+    vis = Visualizer()
+
+    geometries = []
+    for input in config.inputs:
+        input_type = input.get("name")
+        if input_type == "pointcloud":
+            lidar_file = input.get("path")
+            file_type = input.get("type")
+            fields = input.get("fields")
+            color = input.get("color")
+            transform = input.get("transform")
+
+            geometry = CustomDataset.create_pointcloud(
+                lidar_file=lidar_file, file_type=file_type, fields=fields,
+                color=color, transform=transform)
+            geometries.append(geometry)
+        elif input_type == "oriented_bounding_box":
+            label_file = input.get("path")
+            format = input.get("format")
+            color = input.get("color")
+            transform = input.get("transform")
+            scale = input.get("scale")
+
+            geometry = CustomDataset.create_oriented_bounding_box(
+                label_file=label_file, format=format, color=color,
+                transform=transform, scale=scale)
+            geometries.extend(geometry)
+        else:
+            logging.error("Skip unknown input type! {}".format(input_type))
+    vis.visualize(geometries)
+
+
+def display_dataset(config):
+    dataset_conf = config.dataset
+    dataset_name = dataset_conf.get("name")
+    dataset_path = dataset_conf.get("path")
+    if dataset_name == "KITTI":
+        dataset = KITTI(dataset_path)
+
+    vis = Visualizer()
+    vis.visualize_dataset(dataset)
 
 
 def main(args=sys.argv):
@@ -48,15 +91,23 @@ def main(args=sys.argv):
         description="point cloud viz.", prog="main.py")
 
     parser.add_argument(
-        "--lidar_file", action="store", type=str, required=False,
+        "-p", "--pcd", action="store", type=str, required=False,
         help="")
+
     parser.add_argument(
-        "--label_file", action="store", type=str, required=False,
-        help="")
-    parser.add_argument(
-        "--calib_file", action="store", type=str, required=False,
+        "-c", "--cfg", action="store", type=str, required=False,
         help="")
 
     args = parser.parse_args(args[1:])
 
-    display_frame_with_calib(args.lidar_file, args.label_file, args.calib_file)
+    # 1. display pointcloud then return
+    if args.pcd:
+        display_pointcloud(args.pcd)
+        return
+
+    # 2. display pointcloud and labels
+    config = Config(args.cfg)
+    if config.dataset:
+        display_dataset(config)
+    elif config.inputs:
+        display_frame(config)

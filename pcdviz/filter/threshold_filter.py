@@ -14,13 +14,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from abc import ABC, abstractmethod
+from base_filter import BaseFilter
 
 
-class BaseFilter(ABC):
+class ThresholdFilter(BaseFilter):
     def __init__(self) -> None:
         pass
 
-    @abstractmethod
     def filter(self, data):
         pass

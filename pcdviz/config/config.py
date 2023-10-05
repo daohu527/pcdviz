@@ -14,7 +14,26 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import yaml
 
-class Arrow(VizObj):
-  def __init__(self):
-    pass
+
+class Config:
+    def __init__(self, config_path) -> None:
+        self.config_path = config_path
+        self.parse(config_path)
+
+    def parse(self, config_path):
+        with open(config_path) as f:
+            self.config = yaml.safe_load(f)
+
+    @property
+    def inputs(self):
+        return self.config.get('inputs')
+
+    @property
+    def dataset(self):
+        return self.config.get('dataset')
+
+    @property
+    def filters(self):
+        return self.config.get('filters')

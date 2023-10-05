@@ -14,15 +14,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""
-  http://www.open3d.org/docs/release/python_api/open3d.geometry.PointCloud.html#open3d.geometry.PointCloud
-"""
-import open3d as o3d
+from base_filter import BaseFilter
 
 
-class Pointcloud(o3d.geometry.PointCloud):
-  def __init__(self):
-    o3d.geometry.PointCloud.__init__(self)
+class TypeFilter(BaseFilter):
+    def __init__(self) -> None:
+        pass
 
-    if file_path:
-      self.geometry = o3d.io.read_point_cloud(file_path)
+    def filter(self, data):
+        pass

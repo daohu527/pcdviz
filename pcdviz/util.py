@@ -14,13 +14,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from abc import ABC, abstractmethod
 
-
-class BaseFilter(ABC):
-    def __init__(self) -> None:
-        pass
-
-    @abstractmethod
-    def filter(self, data):
-        pass
+COLOR_MAP = {
+    "red": [1, 0, 0],
+    "yellow": [0, 1, 0],
+    "blue": [0, 0, 1],
+    "black": [0, 0, 0]
+}

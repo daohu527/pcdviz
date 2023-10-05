@@ -14,15 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import pcdviz
 
-viz = pcdviz.Scene()
-kitti = pcdviz.dataset.KITTI()
-
-for pointcloud, bounding_box in kitti:
-  viz.add(pointcloud, bounding_box)
-
-for frame in kitti:
-  viz.update(frame)  
-
-viz.show()
+class Arrow(VizObj):
+    def __init__(self):
+        pass

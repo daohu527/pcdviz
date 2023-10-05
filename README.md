@@ -2,11 +2,20 @@
 point cloud viz
 
 ## Quick start
-1. Display one frame of data. You need to specify the point cloud path `lidar_file` and the ground truth `label_file`
+1. Display point cloud
 ```
-pcdviz --lidar_file=data/kitti/velodyne/training/000003.bin --label_file=data/kitti/label_2/training/000003.txt --calib_file=data/kitti/calib/training/000003.txt
+pcdviz --pcd=data/kitti/velodyne/training/000003.bin
 ```
 
+2. Display multi point cloud
+```
+pcdviz --cfg=config/multi_pointcloud.yaml
+```
+
+2. Display dataset
+```
+pcdviz --cfg=config/dataset_visualize.yaml
+```
 
 ## plan
 1. complete point cloud viz (1days)

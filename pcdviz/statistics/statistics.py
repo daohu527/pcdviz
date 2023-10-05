@@ -17,5 +17,6 @@
 
 import seaborn
 
+
 def label_num_table(self):
-  pass
+    pass

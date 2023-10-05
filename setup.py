@@ -26,6 +26,7 @@ setuptools.setup(
         'open3d',
         'seaborn',
         'numpy',
+        'pyyaml',
     ],
     entry_points={
         'console_scripts': [

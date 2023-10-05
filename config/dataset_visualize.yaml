@@ -1,0 +1,12 @@
+dataset:
+  name: KITTI
+  path: data/kitti
+
+filters:
+  - name: range_filter
+    range: 
+  - name: threshold_filter
+    threshold:
+  - name: type_filter
+    black_type:
+    white_type:

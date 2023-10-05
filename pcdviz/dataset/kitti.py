@@ -36,7 +36,8 @@ class KITTI(BaseDataset):
       Tram = 7
       Misc = 8
       DontCare = 9
-    """     
+    """
+
     def __init__(self, dataset_path, **kwargs):
         self.name = 'KITTI'
         self.dataset_path = dataset_path
@@ -57,7 +58,7 @@ class KITTI(BaseDataset):
     def __len__(self):
         return len(self.file_names)
 
-    def get_data(self):
+    def items(self):
         for file_name in self.file_names:
             # create PointCloud
             velodyne_file = os.path.join(
@@ -87,7 +88,6 @@ class KITTI(BaseDataset):
 
         # create OrientedBoundingBox
         objs = KITTI.read_label(label_file, calib)
-
         bboxes = []
         rotation = np.eye(3, dtype=np.float32)
         for obj in objs:
@@ -175,6 +175,7 @@ class KITTI(BaseDataset):
         P2 = KITTI._extend_matrix(P2)
         P3 = KITTI._extend_matrix(P3)
 
+        # R0_rect is 3x3
         obj = lines[4].strip().split(' ')[1:]
         rect_4x4 = np.eye(4, dtype=np.float32)
         rect_4x4[:3, :3] = np.array(obj, dtype=np.float32).reshape(3, 3)

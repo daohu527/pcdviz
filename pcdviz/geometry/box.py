@@ -16,17 +16,22 @@
 
 
 class Box2D(VizObj):
-  def __init__(self):
-    pass
+    def __init__(self):
+        pass
+
 
 class Box3D(VizObj):
-  def __init__(self):
-    pass
+    def __init__(self):
+        self._bbox
+        self._arrow
+        self._text
+
 
 class Box3DProj(Box3D):
-  def __init__(self):
-    pass
+    def __init__(self):
+        pass
+
 
 class Box3DWithHeading(Box3D):
-  def __init__(self):
-    pass
+    def __init__(self):
+        pass

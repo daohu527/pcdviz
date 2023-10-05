@@ -1,0 +1,10 @@
+inputs:
+  - name: pointcloud
+    path: data/kitti/velodyne/training/000003.bin
+    color: red
+  - name: oriented_bounding_box
+    path: data/kitti/label_2/training/000003.txt
+    callback:
+  - name: calib
+    path: data/kitti/calib/training/000003.txt
+    callback:

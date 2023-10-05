@@ -18,6 +18,5 @@ from base_dataset import BaseDataset
 
 
 class Nuscenes(BaseDataset):
-  def __init__(self):
-    pass
-
+    def __init__(self):
+        pass

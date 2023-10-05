@@ -14,7 +14,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+"""
+  http://www.open3d.org/docs/release/python_api/open3d.geometry.PointCloud.html#open3d.geometry.PointCloud
+"""
+import open3d as o3d
 
-class Label(VizObj):
-  def __init__(self):
-    pass
+
+class Pointcloud(o3d.geometry.PointCloud):
+    def __init__(self):
+        pass
