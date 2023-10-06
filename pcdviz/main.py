@@ -18,6 +18,7 @@ import os
 import argparse
 import sys
 import logging
+import site
 from pathlib import Path
 
 
@@ -86,6 +87,19 @@ def display_dataset(config):
     vis.visualize_dataset(dataset)
 
 
+def reset_working_dir():
+    system_install_config = os.path.join(sys.prefix, 'pcdviz/')
+    user_install_config = os.path.join(site.USER_BASE, 'pcdviz/')
+    if Path(user_install_config).exists():
+        os.chdir(user_install_config)
+        print("Current working dir is: {}".format(user_install_config))
+    elif Path(system_install_config).exists():
+        os.chdir(system_install_config)
+        print("Current working dir is: {}".format(system_install_config))
+    else:
+        logging.error("Can't find working dir!")
+
+
 def main(args=sys.argv):
     parser = argparse.ArgumentParser(
         description="point cloud viz.", prog="main.py")
@@ -98,12 +112,20 @@ def main(args=sys.argv):
         "-c", "--cfg", action="store", type=str, required=False,
         help="")
 
+    parser.add_argument(
+        "--example", action="store", type=bool, required=False,
+        nargs='?', const=True, help="Example mode")
+
     args = parser.parse_args(args[1:])
 
     # 1. display pointcloud then return
     if args.pcd:
         display_pointcloud(args.pcd)
         return
+
+    # When running the example, we need to switch the working directory
+    if args.example:
+        reset_working_dir()
 
     # 2. display pointcloud and labels
     config = Config(args.cfg)

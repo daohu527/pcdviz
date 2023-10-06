@@ -1,4 +1,5 @@
 import setuptools
+from glob import glob
 
 with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
@@ -21,6 +22,17 @@ setuptools.setup(
         "Operating System :: OS Independent",
     ],
     package_dir={"": "."},
+    data_files=[('pcdviz/config', glob('config/*yaml')),
+                ('pcdviz/data/custom/label', 
+                 glob('data/custom/label/*txt')),
+                ('pcdviz/data/custom/velodyne', 
+                 glob('data/custom/velodyne/*bin')),
+                ('pcdviz/data/kitti/calib/training', 
+                 glob('data/kitti/calib/training/*txt')),
+                ('pcdviz/data/kitti/label_2/training', 
+                 glob('data/kitti/label_2/training/*txt')),
+                ('pcdviz/data/kitti/velodyne/training', 
+                 glob('data/kitti/velodyne/training/*bin')),],
     packages=setuptools.find_packages(where="."),
     install_requires=[
         'open3d',
