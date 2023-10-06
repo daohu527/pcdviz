@@ -118,14 +118,14 @@ def main(args=sys.argv):
 
     args = parser.parse_args(args[1:])
 
+    # When running the example, we need to switch the working directory
+    if args.example:
+        reset_working_dir()
+
     # 1. display pointcloud then return
     if args.pcd:
         display_pointcloud(args.pcd)
         return
-
-    # When running the example, we need to switch the working directory
-    if args.example:
-        reset_working_dir()
 
     # 2. display pointcloud and labels
     config = Config(args.cfg)

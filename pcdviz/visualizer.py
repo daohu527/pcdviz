@@ -46,7 +46,8 @@ class Visualizer:
         # options
         self._vis.get_render_option().line_width = 1
         self._vis.get_render_option().point_size = 1
-        self._vis.get_render_option().show_coordinate_frame = True
+        # self._vis.get_render_option().show_coordinate_frame = True
+
         # callback
         self._vis.register_key_callback(KEY_A, self._key_capture_callback)
         self._vis.register_key_callback(KEY_N, self._key_next_callback)
