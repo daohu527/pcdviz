@@ -43,8 +43,11 @@ class KITTI(BaseDataset):
         self.dataset_path = dataset_path
         self.file_names = self.get_sorted_file_names()
 
+        assert len(self.file_names) != 0, "File not found in {}".format(
+            self.dataset_path)
+
     def get_sorted_file_names(self):
-        velodyne_path = os.path.join(self.dataset_path, "velodyne/training/")
+        velodyne_path = os.path.join(self.dataset_path, "velodyne/")
         file_names = []
         for velodyne_file in glob.glob("{}*.bin".format(velodyne_path)):
             file_name = Path(velodyne_file).stem
@@ -62,7 +65,7 @@ class KITTI(BaseDataset):
         for file_name in self.file_names:
             # create PointCloud
             velodyne_file = os.path.join(
-                self.dataset_path, "velodyne/training/{}.bin".format(file_name))
+                self.dataset_path, "velodyne/{}.bin".format(file_name))
             pointcloud = self.create_pointcloud(velodyne_file)
 
             # create OrientedBoundingBox

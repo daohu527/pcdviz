@@ -1,10 +1,10 @@
 dataset:
   name: KITTI
-  path: data/kitti
+  path: data/kitti/training
 
 filters:
   - name: range_filter
-    range: 
+    range:
   - name: threshold_filter
     threshold:
   - name: type_filter
