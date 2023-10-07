@@ -112,7 +112,7 @@ class KITTI(BaseDataset):
 
     @staticmethod
     def read_label(file_path, calib):
-        labels = np.loadtxt(file_path, delimiter=' ', dtype=str)
+        labels = np.loadtxt(file_path, delimiter=' ', dtype=str, ndmin=2)
         objs = []
         for label in labels:
             # KITTI image coordinates

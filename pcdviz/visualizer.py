@@ -21,15 +21,13 @@ import open3d as o3d
 from open3d.visualization import gui
 from open3d.visualization import rendering
 
-from pcdviz.dataset.kitti import KITTI
-
 
 KEY_A = 65
 KEY_N = 78
-key_left_arrow = 75
-key_right_arrow = 77
-key_up_arrow = 72
-key_down_arrow = 80
+KEY_LEFT_ARROW = 75
+KEY_RIGHT_ARROW = 77
+KEY_UP_ARROW = 72
+KEY_DOWN_ARROW = 80
 
 
 class Visualizer:
