@@ -1,10 +1,10 @@
 inputs:
   - name: pointcloud
     type: bin
-    path: data/custom/velodyne/000003.bin
+    path: data/kitti/training/velodyne/000003.bin
     transform: []
     color: red
   - name: pointcloud
     type: bin
-    path: data/custom/velodyne/000005.bin
+    path: data/kitti/training/velodyne/000005.bin
     color: blue

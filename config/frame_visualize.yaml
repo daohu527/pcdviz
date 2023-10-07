@@ -6,5 +6,5 @@ inputs:
     path: data/custom/label/000005.txt
     color: red
   - name: oriented_bounding_box
-    path: data/custom/label/000005p.txt
+    path: data/custom/prediction/000005.txt
     color: blue
