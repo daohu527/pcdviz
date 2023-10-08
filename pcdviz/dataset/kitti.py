@@ -137,11 +137,8 @@ class KITTI(BaseDataset):
             velodyne_center = [points[0], points[1], points[2] + (size[2] / 2)]
 
             # KITTI rotation_y to velodyne mat
-            rotation_y = float(label[14])
-            rotation = [np.cos(rotation_y), 0, np.sin(
-                rotation_y), 1] @ np.linalg.inv(velo_to_cam)
-            rotation_z = math.atan2(rotation[1], rotation[0])
-            rotation_mat = euler_to_rotation_matrix(0, 0, rotation_z)
+            yaw = np.pi/2 - float(label[14])
+            rotation_mat = euler_to_rotation_matrix(0, 0, yaw)
 
             objs.append({
                 "type": label[0],
