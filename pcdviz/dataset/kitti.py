@@ -20,9 +20,12 @@ import glob
 import logging
 import os
 from pathlib import Path
+import math
 
 import numpy as np
 import open3d as o3d
+
+from pcdviz.util import euler_to_rotation_matrix
 
 
 class KITTI(BaseDataset):
@@ -92,11 +95,10 @@ class KITTI(BaseDataset):
         # create OrientedBoundingBox
         objs = KITTI.read_label(label_file, calib)
         bboxes = []
-        rotation = np.eye(3, dtype=np.float32)
         for obj in objs:
             if obj["type"] != "DontCare":
                 bbox = o3d.geometry.OrientedBoundingBox(
-                    obj["location"], rotation, obj["dimensions"])
+                    obj["location"], obj["rotation_mat"], obj["dimensions"])
                 # todo(zero): add color
                 # bbox.color
                 bboxes.append(bbox)
@@ -134,6 +136,13 @@ class KITTI(BaseDataset):
             points = camera_center @ np.linalg.inv(velo_to_cam)
             velodyne_center = [points[0], points[1], points[2] + (size[2] / 2)]
 
+            # KITTI rotation_y to velodyne mat
+            rotation_y = float(label[14])
+            rotation = [np.cos(rotation_y), 0, np.sin(
+                rotation_y), 1] @ np.linalg.inv(velo_to_cam)
+            rotation_z = math.atan2(rotation[1], rotation[0])
+            rotation_mat = euler_to_rotation_matrix(0, 0, rotation_z)
+
             objs.append({
                 "type": label[0],
                 "truncated": float(label[1]),
@@ -142,7 +151,7 @@ class KITTI(BaseDataset):
                 "bbox": image_bbox,
                 "dimensions": size,
                 "location": velodyne_center,
-                "rotation_y": float(label[14]),
+                "rotation_mat": rotation_mat,
                 "score": None})
         return objs
 
