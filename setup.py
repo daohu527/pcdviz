@@ -6,7 +6,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
     name="pcdviz",
-    version="0.0.2",
+    version="0.0.3",
     author="daohu527",
     author_email="daohu527@gmail.com",
     description="point cloud viz",
