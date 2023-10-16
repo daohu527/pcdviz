@@ -14,17 +14,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import os
 import argparse
-import sys
 import logging
+import os
 import site
+import sys
 from pathlib import Path
-
 
 from pcdviz.config.config import Config
 from pcdviz.dataset.custom_dataset import CustomDataset
 from pcdviz.dataset.kitti import KITTI
+from pcdviz.dataset.nuscenes import Nuscenes
 from pcdviz.visualizer import Visualizer
 
 
@@ -82,6 +82,8 @@ def display_dataset(config):
     dataset_path = dataset_conf.get("path")
     if dataset_name == "KITTI":
         dataset = KITTI(dataset_path)
+    elif dataset_name == "nuScenes":
+        dataset = Nuscenes(dataset_path)
 
     vis = Visualizer()
     vis.visualize_dataset(dataset)

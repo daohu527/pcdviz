@@ -15,6 +15,7 @@
 # limitations under the License.
 
 import math
+
 import numpy as np
 
 COLOR_MAP = {
@@ -23,6 +24,34 @@ COLOR_MAP = {
     "blue": [0, 0, 1],
     "black": [0, 0, 0]
 }
+
+
+def to_quaternion(roll, pitch, yaw):
+    cr = math.cos(roll * 0.5)
+    sr = math.sin(roll * 0.5)
+    cp = math.cos(pitch * 0.5)
+    sp = math.sin(pitch * 0.5)
+    cy = math.cos(yaw * 0.5)
+    sy = math.sin(yaw * 0.5)
+    qw = cr * cp * cy + sr * sp * sy
+    qx = sr * cp * cy - cr * sp * sy
+    qy = cr * sp * cy + sr * cp * sy
+    qz = cr * cp * sy - sr * sp * cy
+    return qw, qx, qy, qz
+
+
+def to_euler(w, x, y, z):
+    t0 = 2 * (w * x + y * z)
+    t1 = 1 - 2 * (x * x + y * y)
+    roll = math.atan2(t0, t1)
+
+    t2 = 2 * (w * y - z * x)
+    pitch = math.asin(t2)
+
+    t3 = 2 * (w * z + x * y)
+    t4 = 1 - 2 * (y * y + z * z)
+    yaw = math.atan2(t3, t4)
+    return roll, pitch, yaw
 
 
 def euler_to_rotation_matrix(theta1, theta2, theta3, order='xyz'):

@@ -14,13 +14,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import logging
 import datetime
+import logging
 
 import open3d as o3d
-from open3d.visualization import gui
-from open3d.visualization import rendering
-
+from open3d.visualization import gui, rendering
 
 KEY_A = 65
 KEY_N = 78

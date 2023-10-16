@@ -14,17 +14,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from pcdviz.dataset.base_dataset import BaseDataset
-
 import glob
 import logging
+import math
 import os
 from pathlib import Path
-import math
 
 import numpy as np
 import open3d as o3d
-
+from pcdviz.dataset.base_dataset import BaseDataset
 from pcdviz.util import euler_to_rotation_matrix
 
 
