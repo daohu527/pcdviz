@@ -23,7 +23,6 @@ from pathlib import Path
 import numpy as np
 import open3d as o3d
 from pcdviz.dataset.base_dataset import BaseDataset
-from pcdviz.util import euler_to_rotation_matrix, to_euler
 
 
 class Nuscenes(BaseDataset):
@@ -31,12 +30,21 @@ class Nuscenes(BaseDataset):
         self.name = "nuScenes"
         self.dataset_path = dataset_path
         self.version = 'v1.0-mini'
-        self.table_names = ['attribute', 'calibrated_sensor', 'category',
-                            'instance', 'log', 'map', 'sample_annotation',
-                            'sample_data', 'sample', 'scene', 'sensor',
-                            'visibility']
-        # schema -> {table_name: {}}
-        self.schema_dict = dict()
+
+        self.category = self._load_table('category')
+        self.attribute = self._load_table('attribute')
+        self.visibility = self._load_table('visibility')
+        self.instance = self._load_table('instance')
+        self.sensor = self._load_table('sensor')
+        self.calibrated_sensor = self._load_table('calibrated_sensor')
+        self.ego_pose = self._load_table('ego_pose')
+        self.log = self._load_table('log')
+        self.scene = self._load_table('scene')
+        self.sample = self._load_table('sample')
+        self.sample_data = self._load_table('sample_data')
+        self.sample_annotation = self._load_table('sample_annotation')
+        self.map = self._load_table('map')
+
         # sample_data -> {sample_token: [sample_data]}
         self.sample_data_dict = defaultdict(list)
         # sample_annotation -> {sample_token: [sample_annotation]}
@@ -49,38 +57,14 @@ class Nuscenes(BaseDataset):
     def __len__(self):
         pass
 
-    @property
-    def scene(self):
-        return self.schema_dict['scene']
-
-    @property
-    def sample(self):
-        return self.schema_dict['sample']
-
-    @property
-    def sample_data(self):
-        return self.schema_dict['sample_data']
-
-    @property
-    def sample_annotation(self):
-        return self.schema_dict['sample_annotation']
-
-    @property
-    def calibrated_sensor(self):
-        return self.schema_dict['calibrated_sensor']
-
-    @property
-    def sensor(self):
-        return self.schema_dict['sensor']
+    def _load_table(self, table_name):
+        file_path = os.path.join(
+            self.dataset_path, self.version, "{}.json".format(table_name))
+        with open(file_path, 'r') as f:
+            data = json.load(f)
+            return {d['token']: d for d in data}
 
     def _load_data(self):
-        # Init schema_dict
-        for table_name in self.table_names:
-            file_path = os.path.join(
-                self.dataset_path, self.version, "{}.json".format(table_name))
-            with open(file_path, 'r') as f:
-                data = json.load(f)
-                self.schema_dict[table_name] = {d['token']: d for d in data}
         # Init sample_data_dict
         for token, sample_data in self.sample_data.items():
             sample_token = sample_data['sample_token']
@@ -98,24 +82,35 @@ class Nuscenes(BaseDataset):
                 sample_token = sample['next']
                 yield sample
 
+    def get_sample_data(self, sample_data_token):
+        sample_data = self.sample_data[sample_data_token]
+        calibrated_sensor = self.calibrated_sensor.get(
+            sample_data['calibrated_sensor_token'])
+        sensor = self.sensor.get(calibrated_sensor['sensor_token'])
+        ego_pose = self.ego_pose.get(sample_data['ego_pose_token'])
+        file_path = os.path.join(self.dataset_path, sample_data['filename'])
+        pointcloud = None
+        if sensor['modality'] == 'lidar':
+            pointcloud = Nuscenes.create_pointcloud(file_path)
+
+        calib = {"ego_pose": ego_pose, "calibrated_sensor": calibrated_sensor}
+        bboxes = []
+        if sample_data['is_key_frame']:
+            sample_annotations = self.sample_annotation_dict.get(
+                sample_data['sample_token'])
+            for sample_annotation in sample_annotations:
+                bbox = Nuscenes.create_oriented_bounding_box(
+                    sample_annotation, calib)
+                bboxes.append(bbox)
+        return pointcloud, bboxes
+
     def items(self):
         for sample in self._get_samples():
             sample_token = sample['token']
             for sample_data in self.sample_data_dict[sample_token]:
-                if sample_data['is_key_frame']:
-                    file_path = os.path.join(
-                        self.dataset_path, sample_data['filename'])
-                    calibrated_sensor_token = sample_data['calibrated_sensor_token']
-                    sensor_token = self.calibrated_sensor[calibrated_sensor_token]['sensor_token']
-                    sensor = self.sensor[sensor_token]
-                    if sensor['modality'] == 'lidar':
-                        pointcloud = Nuscenes.create_pointcloud(file_path)
-            bboxes = []
-            for sample_annotation in self.sample_annotation_dict[sample_token]:
-                bbox = Nuscenes.create_oriented_bounding_box(sample_annotation)
-                # bboxes.append(bbox)
-            yield {"pointcloud": pointcloud,
-                   "bboxes": bboxes}
+                pointcloud, bboxes = self.get_sample_data(sample_data['token'])
+                if pointcloud:
+                  yield {"pointcloud": pointcloud, "bboxes": bboxes}
 
     @staticmethod
     def create_pointcloud(pcd_file):
@@ -125,14 +120,23 @@ class Nuscenes(BaseDataset):
         return pcd
 
     @staticmethod
-    def create_oriented_bounding_box(sample_annotation):
+    def create_oriented_bounding_box(sample_annotation, calib):
         translation = sample_annotation['translation']
-        size = sample_annotation['size']
-        w, x, y, z = sample_annotation['rotation']
-        roll, pitch, yaw = to_euler(w, x, y, z)
-        rotation_mat = euler_to_rotation_matrix(roll, pitch, yaw)
-        bbox = o3d.geometry.OrientedBoundingBox(
-            translation, rotation_mat, size)
+        width, length, height = sample_annotation['size']
+        rotation_mat = o3d.geometry.OrientedBoundingBox.get_rotation_matrix_from_quaternion(
+            sample_annotation['rotation'])
+        bbox = o3d.geometry.OrientedBoundingBox(translation, rotation_mat, [length, width, height])
+
+        # world to vehicle coordinates
+        rotation_mat = o3d.geometry.OrientedBoundingBox.get_rotation_matrix_from_quaternion(
+            calib['ego_pose']['rotation'])
+        bbox.translate(-np.array(calib['ego_pose']['translation']))
+        bbox.rotate(np.linalg.inv(rotation_mat))
+        # vehicle to sensor coordinates
+        rotation_mat = o3d.geometry.OrientedBoundingBox.get_rotation_matrix_from_quaternion(
+            calib['calibrated_sensor']['rotation'])
+        bbox.translate(-np.array(calib['calibrated_sensor']['translation']))
+        bbox.rotate(np.linalg.inv(rotation_mat))
         return bbox
 
     @staticmethod

@@ -8,12 +8,12 @@ Types in the data directory are just wrappers for the open3d geometry classes. T
 
 There are types that are not implemented in open3d, we will implement this part ourselves. They inherit from `BaseObj` class.
 
-In this way we can provide a simpler data reading interface and retain the methods in open3d. 
+In this way we can provide a simpler data reading interface and retain the methods in open3d.
 
 #### Types
-arrow.py - 
+arrow.py -
 box.py - open3d.geometry.OrientedBoundingBox
-label.py - 
+label.py -
 pointcloud.py - open3d.geometry.PointCloud
 
 #### dataset
@@ -23,8 +23,11 @@ ml3d already implemented the dataset and visualization, so we will improve by th
 The implementation of the dataset class refers to pytorch, which simply means reading data from the dataset.
 
 They are of two types:
-- Map. Map type reads data from it, no order 
+- Map. Map type reads data from it, no order
 - Iter. In order
+
+nuscenes parse
+https://www.nuscenes.org/tutorials/nuscenes_tutorial.html
 
 #### Statistics
 In addition, we will add a data statistics interface to the data set to facilitate our understanding of the data. You can refer to YOLOV8’s chart for this part.
@@ -53,7 +56,7 @@ first call calib callback and then oriented_bounding_box callback
 calib callback interface
 ```
 input: calib.path
-output: {} 
+output: {}
 ```
 
 oriented_bounding_box callback interface

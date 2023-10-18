@@ -1,6 +1,8 @@
 dataset:
-  name: KITTI
-  path: data/kitti/training
+  name: nuScenes
+  path: data/nuscenes/v1.0-mini
+  # name: KITTI
+  # path: data/kitti/training
 
 filters:
   - name: range_filter
