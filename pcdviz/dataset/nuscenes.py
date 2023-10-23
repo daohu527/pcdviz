@@ -74,16 +74,19 @@ class Nuscenes(BaseDataset):
             sample_token = sample_annotation['sample_token']
             self.sample_annotation_dict[sample_token].append(sample_annotation)
 
-    def _get_samples(self):
-        for token, scene in self.scene.items():
-            sample_token = scene['first_sample_token']
-            while sample_token:
-                sample = self.sample[sample_token]
-                sample_token = sample['next']
-                yield sample
+    def _get_samples(self, scene_token):
+        scene = self.scene[scene_token]
+        sample_token = scene['first_sample_token']
+        while sample_token:
+            sample = self.sample[sample_token]
+            sample_token = sample['next']
+            yield sample
 
     def get_sample_data(self, sample_data_token):
         sample_data = self.sample_data[sample_data_token]
+        if not sample_data['is_key_frame']:
+            return None, None
+
         calibrated_sensor = self.calibrated_sensor.get(
             sample_data['calibrated_sensor_token'])
         sensor = self.sensor.get(calibrated_sensor['sensor_token'])
@@ -95,22 +98,23 @@ class Nuscenes(BaseDataset):
 
         calib = {"ego_pose": ego_pose, "calibrated_sensor": calibrated_sensor}
         bboxes = []
-        if sample_data['is_key_frame']:
-            sample_annotations = self.sample_annotation_dict.get(
-                sample_data['sample_token'])
-            for sample_annotation in sample_annotations:
-                bbox = Nuscenes.create_oriented_bounding_box(
-                    sample_annotation, calib)
-                bboxes.append(bbox)
+        sample_annotations = self.sample_annotation_dict.get(
+            sample_data['sample_token'])
+        for sample_annotation in sample_annotations:
+            bbox = Nuscenes.create_oriented_bounding_box(
+                sample_annotation, calib)
+            bboxes.append(bbox)
         return pointcloud, bboxes
 
     def items(self):
-        for sample in self._get_samples():
-            sample_token = sample['token']
-            for sample_data in self.sample_data_dict[sample_token]:
-                pointcloud, bboxes = self.get_sample_data(sample_data['token'])
-                if pointcloud:
-                  yield {"pointcloud": pointcloud, "bboxes": bboxes}
+        for token, scene in self.scene.items():
+            for sample in self._get_samples(scene['token']):
+                sample_token = sample['token']
+                for sample_data in self.sample_data_dict[sample_token]:
+                    pointcloud, bboxes = self.get_sample_data(
+                        sample_data['token'])
+                    if pointcloud:
+                        yield {"pointcloud": pointcloud, "bboxes": bboxes}
 
     @staticmethod
     def create_pointcloud(pcd_file):
@@ -125,7 +129,8 @@ class Nuscenes(BaseDataset):
         width, length, height = sample_annotation['size']
         rotation_mat = o3d.geometry.OrientedBoundingBox.get_rotation_matrix_from_quaternion(
             sample_annotation['rotation'])
-        bbox = o3d.geometry.OrientedBoundingBox(translation, rotation_mat, [length, width, height])
+        bbox = o3d.geometry.OrientedBoundingBox(
+            translation, rotation_mat, [length, width, height])
 
         # world to vehicle coordinates
         rotation_mat = o3d.geometry.OrientedBoundingBox.get_rotation_matrix_from_quaternion(
