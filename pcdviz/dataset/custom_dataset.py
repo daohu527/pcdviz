@@ -39,7 +39,7 @@ class CustomDataset(BaseDataset):
     def create_pointcloud(lidar_file, file_type, fields=None, color=None,
                           transform=None):
         if file_type == "bin":
-            points = CustomDataset.read_lidar(lidar_file)
+            points = CustomDataset.read_lidar(lidar_file, fields)
             pointcloud = o3d.geometry.PointCloud()
             pointcloud.points = o3d.utility.Vector3dVector(points[:, :3])
         elif file_type == "pcd":
@@ -51,14 +51,17 @@ class CustomDataset(BaseDataset):
         return pointcloud
 
     @staticmethod
-    def read_lidar(file_path):
+    def read_lidar(file_path, fields=None):
         if not Path(file_path).exists():
             logging.error("File not exist! {}".format(file_path))
             return None
-        return np.fromfile(file_path, dtype=np.float32).reshape(-1, 4)
+        # Todo(zero): need complete fields
+        dim = int(fields) if fields else 4
+        return np.fromfile(file_path, dtype=np.float32).reshape(-1, dim)
 
     @staticmethod
-    def create_oriented_bounding_box(label_file, format, color=None, transform=None, scale=None):
+    def create_oriented_bounding_box(label_file, format, color=None,
+                                     transform=None, scale=None):
         objs = CustomDataset.read_label(label_file, format)
 
         color = COLOR_MAP.get(color)
@@ -66,7 +69,7 @@ class CustomDataset(BaseDataset):
         for obj in objs:
             bbox = o3d.geometry.OrientedBoundingBox(
                 obj["center"], obj["R"], obj["extent"])
-            
+
             if color:
                 bbox.color = color
             bboxes.append(bbox)

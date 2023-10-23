@@ -11,8 +11,11 @@ You can use it in many scenarios, here are some examples.
 
 ## Display point cloud
 If you only need to display the point cloud, specify the point cloud path and run the following command.
-```
+```shell
 pcdviz --pcd=data/kitti/training/velodyne/000003.bin --example
+
+# Default fields is 4(KITTI), so if you use nuScenes add --fields=5
+pcdviz --pcd=data/nuscenes/v1.0-mini/samples/LIDAR_TOP/n008-2018-08-01-15-16-36-0400__LIDAR_TOP__1533151603547590.pcd.bin --fields=5
 ```
 
 > --example means example mode, you can remove it in normal mode

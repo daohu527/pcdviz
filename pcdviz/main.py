@@ -32,14 +32,14 @@ def _get_file_type(file_path: str) -> str:
     return os.path.splitext(file_path)[1]
 
 
-def display_pointcloud(file_path):
+def display_pointcloud(file_path, fields):
     if not Path(file_path).exists():
         logging.error("File not exist! {}".format(file_path))
         return None
 
     vis = Visualizer()
     file_type = _get_file_type(file_path)[1:]
-    pointcloud = CustomDataset.create_pointcloud(file_path, file_type)
+    pointcloud = CustomDataset.create_pointcloud(file_path, file_type, fields)
     vis.visualize(pointcloud)
 
 
@@ -109,6 +109,9 @@ def main(args=sys.argv):
     parser.add_argument(
         "-p", "--pcd", action="store", type=str, required=False,
         help="")
+    parser.add_argument(
+        "-f", "--fields", action="store", type=str, required=False,
+        help="")
 
     parser.add_argument(
         "-c", "--cfg", action="store", type=str, required=False,
@@ -126,7 +129,7 @@ def main(args=sys.argv):
 
     # 1. display pointcloud then return
     if args.pcd:
-        display_pointcloud(args.pcd)
+        display_pointcloud(args.pcd, args.fields)
         return
 
     # 2. display pointcloud and labels
