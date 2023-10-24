@@ -16,9 +16,12 @@
 
 import datetime
 import logging
+import time
 
 import open3d as o3d
 from open3d.visualization import gui, rendering
+
+from pcdviz.io.image import save_gif
 
 KEY_A = 65
 KEY_N = 78
@@ -59,12 +62,16 @@ class Visualizer:
         vis.capture_screen_image("{}.png".format(datetime.datetime.now()))
 
     def _key_next_callback(self, vis):
+        image_datas = []
         geometries = next(self._items, None)
         if geometries:
             vis.clear_geometries()
             vis.add_geometry(geometries['pointcloud'])
             for bbox in geometries['bboxes']:
                 vis.add_geometry(bbox)
+            image_data = vis.capture_screen_float_buffer()
+            image_datas.append(image_data)
+            # save_gif(image_datas, "test.gif")
 
     def visualize_dataset(self, dataset):
         """Display the dataset
@@ -96,6 +103,11 @@ class Visualizer:
         data = data if isinstance(data, list) else [data]
         for d in data:
             self._vis.add_geometry(d)
+        self._vis.run()
+
+    def play_dataset(self, dataset):
+        self._init_data(dataset)
+        self._vis.register_animation_callback(self._key_next_callback)
         self._vis.run()
 
     def _init_user_interface(self, title, width, height):

@@ -86,7 +86,7 @@ def display_dataset(config):
         dataset = Nuscenes(dataset_path)
 
     vis = Visualizer()
-    vis.visualize_dataset(dataset)
+    vis.play_dataset(dataset)
 
 
 def reset_working_dir():

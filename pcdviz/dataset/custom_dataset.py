@@ -42,10 +42,8 @@ class CustomDataset(BaseDataset):
             points = CustomDataset.read_lidar(lidar_file, fields)
             pointcloud = o3d.geometry.PointCloud()
             pointcloud.points = o3d.utility.Vector3dVector(points[:, :3])
-        elif file_type == "pcd":
-            pointcloud = o3d.io.read_point_cloud(lidar_file)
         else:
-            pointcloud = o3d.geometry.PointCloud()
+            pointcloud = o3d.io.read_point_cloud(lidar_file)
 
         _fill_color(pointcloud, color)
         return pointcloud
