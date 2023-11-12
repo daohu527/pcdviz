@@ -38,6 +38,7 @@ class Visualizer:
 
     def __init__(self):
         self._init_vis()
+        self.save_gif = False
 
     def _init_vis(self):
         self._vis = o3d.visualization.VisualizerWithKeyCallback()
@@ -69,9 +70,10 @@ class Visualizer:
             vis.add_geometry(geometries['pointcloud'])
             for bbox in geometries['bboxes']:
                 vis.add_geometry(bbox)
-            image_data = vis.capture_screen_float_buffer()
-            image_datas.append(image_data)
-            # save_gif(image_datas, "test.gif")
+            if self.save_gif:
+                image_data = vis.capture_screen_float_buffer()
+                image_datas.append(image_data)
+                save_gif(image_datas, "test.gif")
 
     def visualize_dataset(self, dataset):
         """Display the dataset

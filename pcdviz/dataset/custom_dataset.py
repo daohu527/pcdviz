@@ -47,6 +47,10 @@ class CustomDataset(BaseDataset):
 
         _fill_color(pointcloud, color)
         return pointcloud
+    
+    @staticmethod
+    def create_image(image_file):
+        return o3d.io.read_image(image_file)
 
     @staticmethod
     def read_lidar(file_path, fields=None):
@@ -56,6 +60,20 @@ class CustomDataset(BaseDataset):
         # Todo(zero): need complete fields
         dim = int(fields) if fields else 4
         return np.fromfile(file_path, dtype=np.float32).reshape(-1, dim)
+
+    @staticmethod
+    def create_bounding_box(labels, color=None):
+        color = COLOR_MAP.get(color)
+        bboxes = []
+        for obj in labels["bounding_boxes"]:
+            min_bound = [obj[0], obj[1], 0]
+            max_bound = [obj[2], obj[3], 0]
+            bbox = o3d.geometry.AxisAlignedBoundingBox(min_bound, max_bound)
+
+            if color:
+                bbox.color = color
+            bboxes.append(bbox)
+        return bboxes        
 
     @staticmethod
     def create_oriented_bounding_box(label_file, format, color=None,
