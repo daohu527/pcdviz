@@ -13,10 +13,10 @@ inputs:
           labels = {"bounding_boxes": []}
           for obj in root.findall('object'):
               bndbox = obj.find("bndbox")
-              xmin = bndbox.find("xmin").text
-              ymin = bndbox.find("ymin").text
-              xmax = bndbox.find("xmax").text
-              ymax = bndbox.find("ymax").text
+              xmin = int(bndbox.find("xmin").text)
+              ymin = int(bndbox.find("ymin").text)
+              xmax = int(bndbox.find("xmax").text)
+              ymax = int(bndbox.find("ymax").text)
               labels["bounding_boxes"].append([xmin, ymin, xmax, ymax])
           return labels
       labels = read_labels(file_name)
