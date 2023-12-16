@@ -37,3 +37,9 @@ class Config:
     @property
     def filters(self):
         return self.config.get('filters')
+
+    @property
+    def bounding_box(self):
+        for input in self.config.get('inputs'):
+            if input.get("name") == "bounding_box":
+                return input

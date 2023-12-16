@@ -81,3 +81,9 @@ dataset
 
 statistics
 - Generate statistical charts for datasets
+
+image
+- Add picture display
+- Add custom label callback (https://realpython.com/python-exec/)
+- Add image display bounding-box
+- Add image display 3D frame projection

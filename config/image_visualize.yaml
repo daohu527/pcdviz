@@ -1,0 +1,24 @@
+inputs:
+  - name: image
+    path: data/S2TLD/images/2020-03-30 11_30_03.690871079.jpg
+  - name: bounding_box
+    path: data/S2TLD/labels/2020-03-30 11_30_03.690871079.xml
+    callback: |
+      # import xml.etree.ElementTree as ET
+
+      def read_labels(file_name):
+          import xml.etree.ElementTree as ET
+          tree = ET.parse(file_name)
+          root = tree.getroot()
+          labels = {"bounding_boxes": []}
+          for obj in root.findall('object'):
+              bndbox = obj.find("bndbox")
+              xmin = int(bndbox.find("xmin").text)
+              ymin = int(bndbox.find("ymin").text)
+              xmax = int(bndbox.find("xmax").text)
+              ymax = int(bndbox.find("ymax").text)
+              labels["bounding_boxes"].append([xmin, ymin, xmax, ymax])
+          return labels
+      labels = read_labels(file_name)
+
+

@@ -14,16 +14,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from pcdviz.dataset.base_dataset import BaseDataset
-
 import logging
 from pathlib import Path
 
 import numpy as np
 import open3d as o3d
+from PIL import Image
 
+from pcdviz.dataset.base_dataset import BaseDataset
 from pcdviz.util import COLOR_MAP
-
+from skimage.draw import rectangle_perimeter, polygon, set_color
 
 def _fill_color(pointcloud, color):
     color = COLOR_MAP.get(color)
@@ -42,22 +42,23 @@ class CustomDataset(BaseDataset):
             points = CustomDataset.read_lidar(lidar_file, fields)
             pointcloud = o3d.geometry.PointCloud()
             pointcloud.points = o3d.utility.Vector3dVector(points[:, :3])
-        elif file_type == "pcd":
-            pointcloud = o3d.io.read_point_cloud(lidar_file)
         else:
-            pointcloud = o3d.geometry.PointCloud()
+            pointcloud = o3d.io.read_point_cloud(lidar_file)
 
         _fill_color(pointcloud, color)
         return pointcloud
 
     @staticmethod
-    def read_lidar(file_path, fields=None):
-        if not Path(file_path).exists():
-            logging.error("File not exist! {}".format(file_path))
-            return None
-        # Todo(zero): need complete fields
-        dim = int(fields) if fields else 4
-        return np.fromfile(file_path, dtype=np.float32).reshape(-1, dim)
+    def create_image(image_file, labels=None):
+        img = Image.open(image_file)
+        data = np.asarray(img, dtype=np.uint8)
+        if labels:
+            for obj in labels['bounding_boxes']:
+                rr, cc = rectangle_perimeter((obj[1], obj[0]),
+                                            end=(obj[3], obj[2]),
+                                            shape=data.shape)
+                set_color(data, (rr, cc), (255, 0, 0))
+        return o3d.geometry.Image(data)
 
     @staticmethod
     def create_oriented_bounding_box(label_file, format, color=None,
@@ -74,6 +75,15 @@ class CustomDataset(BaseDataset):
                 bbox.color = color
             bboxes.append(bbox)
         return bboxes
+
+    @staticmethod
+    def read_lidar(file_path, fields=None):
+        if not Path(file_path).exists():
+            logging.error("File not exist! {}".format(file_path))
+            return None
+        # Todo(zero): need complete fields
+        dim = int(fields) if fields else 4
+        return np.fromfile(file_path, dtype=np.float32).reshape(-1, dim)
 
     @staticmethod
     def read_label(file_path, format):

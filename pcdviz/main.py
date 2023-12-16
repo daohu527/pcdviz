@@ -42,6 +42,14 @@ def display_pointcloud(file_path, fields):
     pointcloud = CustomDataset.create_pointcloud(file_path, file_type, fields)
     vis.visualize(pointcloud)
 
+def display_image(file_path):
+    if not Path(file_path).exists():
+        logging.error("File not exist! {}".format(file_path))
+        return
+
+    vis = Visualizer()
+    img = CustomDataset.create_image(file_path)
+    vis.visualize(img)
 
 def display_frame(config):
     vis = Visualizer()
@@ -59,6 +67,24 @@ def display_frame(config):
             geometry = CustomDataset.create_pointcloud(
                 lidar_file=lidar_file, file_type=file_type, fields=fields,
                 color=color, transform=transform)
+            geometries.append(geometry)
+        elif input_type == "bounding_box":
+            # Do nothing
+            pass
+        elif input_type == "image":
+            # image
+            image_file = input.get("path")
+            # bounding_box
+            bounding_box = config.bounding_box
+            label_file = bounding_box.get("path")
+            callback = bounding_box.get("callback")
+
+            local_params = {}
+            exec(callback, {'file_name': label_file}, local_params)
+            labels = local_params["labels"]
+
+            # Use image and bounding_box labels for 2D display
+            geometry = CustomDataset.create_image(image_file, labels)
             geometries.append(geometry)
         elif input_type == "oriented_bounding_box":
             label_file = input.get("path")
@@ -110,6 +136,9 @@ def main(args=sys.argv):
         "-p", "--pcd", action="store", type=str, required=False,
         help="")
     parser.add_argument(
+        "-i", "--img", action="store", type=str, required=False,
+        help="")
+    parser.add_argument(
         "-f", "--fields", action="store", type=str, required=False,
         help="")
 
@@ -130,6 +159,9 @@ def main(args=sys.argv):
     # 1. display pointcloud then return
     if args.pcd:
         display_pointcloud(args.pcd, args.fields)
+        return
+    if args.img:
+        display_image(args.img)
         return
 
     # 2. display pointcloud and labels

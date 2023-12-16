@@ -13,3 +13,17 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+
+from PIL import Image
+import numpy as np
+
+
+def save_gif(image_datas, gif_file):
+    images = []
+    for image_data in image_datas:
+        data = np.array(image_data)
+        image = Image.frombuffer('RGB', (1920, 1080), data, "raw")
+        images.append(image)
+
+    images[0].save(gif_file, save_all=True,
+                   append_images=images[1:], duration=100, loop=0)
